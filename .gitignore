@@ -1,0 +1,11 @@
+
+venv/
+.idea/
+.vscode/
+pycharm/
+__pycache__/
+apps/*/migrations/*
+!apps/*/migrations/__init__.py
+db.sqlite3
+staticfiles
+
