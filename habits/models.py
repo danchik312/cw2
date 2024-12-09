@@ -23,7 +23,6 @@ class Habit(models.Model):
 class HabitLog(models.Model):
     habit = models.ForeignKey(Habit, on_delete=models.CASCADE, related_name='logs')
     date = models.DateField()
-    status = models.BooleanField(default=False)  # True, если привычка выполнена
-
+    status = models.BooleanField(default=False)  
     def __str__(self):
-        return f"{self.habit.title} - {self.date} - {'Completed' if self.status else 'Not Completed'}"
+        return f'{self.habit.title} - {self.date} - {"Выполнено" if self.status else "Не выполнено"}'

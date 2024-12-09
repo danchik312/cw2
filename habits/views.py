@@ -18,9 +18,9 @@ def index(request):
 
 class TokenObtainView(APIView):
     def post(self, request):
-        email = request.data.get('email')
+        username = request.data.get('username')
         password = request.data.get('password')
-        user = authenticate(email=email, password=password)
+        user = authenticate(username=username, password=password) 
         if user is not None:
             refresh = RefreshToken.for_user(user)
             return Response({
@@ -39,32 +39,34 @@ class UserView(APIView):
 
 # Добавление привычек
 class HabitView(APIView):
+    permission_classes = [IsAuthenticated]  
+
     def post(self, request):
-        # Создаем привычку для пользователя
-        serializer = HabitSerializer(data=request.data)
+        user = request.user  
+        data = request.data.copy()
+        data['user'] = user.id 
+
+        serializer = HabitSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()  # Сохраняем привычку в базе
+            serializer.save(user=user)  
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # Логи выполнения привычек
 class HabitLogView(APIView):
-    def post(self, request, habit_id):
-        habit = get_object_or_404(Habit, id=habit_id)
-        data = request.data.copy()
-        data['habit'] = habit.id  # Устанавливаем привычку в лог
+    permission_classes = [IsAuthenticated]
 
-        serializer = HabitLogSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, habit_id):
+        habit = Habit.objects.get(id=habit_id, user=request.user)
+        status = request.data.get('status')
+        log = HabitLog.objects.create(habit=habit, status=status)
+        return Response(HabitLogSerializer(log).data, status=status.HTTP_201_CREATED)
 
     def get(self, request, habit_id):
-        habit = get_object_or_404(Habit, id=habit_id)
-        logs = habit.logs.all()
-        serializer = HabitLogSerializer(logs, many=True)
-        return Response(serializer.data)
+        habit = Habit.objects.get(id=habit_id, user=request.user)
+        logs = HabitLog.objects.filter(habit=habit)
+        return Response(HabitLogSerializer(logs, many=True).data)
     
 class HabitView(APIView):
     permission_classes = [IsAuthenticated]  # Только авторизованные пользователи могут добавлять привычки
