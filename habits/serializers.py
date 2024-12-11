@@ -22,10 +22,9 @@ class HabitSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'title', 'period']
 
     def validate_user(self, value):
-        if isinstance(value, int):
-            return value
-        raise serializers.ValidationError("Invalid user ID.")
-    
+        if not isinstance(value, User):
+            raise serializers.ValidationError("Invalid user object.")
+        return value
 
 # Сериализатор для логов выполнения привычек
 class HabitLogSerializer(serializers.ModelSerializer):

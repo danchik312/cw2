@@ -38,19 +38,21 @@ class UserView(APIView):
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 # Добавление привычек
-class HabitView(APIView):
-    permission_classes = [IsAuthenticated]  
+# class HabitView(APIView):
+#     permission_classes = [IsAuthenticated]  
 
-    def post(self, request):
-        user = request.user  
-        data = request.data.copy()
-        data['user'] = user.id 
+#     def post(self, request):
+#         user = request.user  
+#         data = request.data.copy()
+#         data['user'] = user.id 
 
-        serializer = HabitSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save(user=user)  
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         serializer = HabitSerializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save(user=user)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         else:
+#             print(serializer.errors)  # Отладочный вывод
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Логи выполнения привычек
@@ -81,3 +83,4 @@ class HabitView(APIView):
             serializer.save(user=user)  # Привязываем пользователя к привычке
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
